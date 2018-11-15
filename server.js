@@ -14,46 +14,22 @@ const wss = new SocketServer({ server });
 
 wss.on('connection', (ws) => {
   console.log('Client connected');
-  // set up user count on connection
-  let clientCountObject = {
-    type: 'userCount',
-    count: wss.clients.size,
-  };
-  // loop through each connected client and send object to app
-  wss.clients.forEach(function each(client) {
-    client.send(JSON.stringify(clientCountObject));
-  });
+
   // receiving messages from client
   ws.onmessage = function(event) {
-    let msg = JSON.parse(event.data);
-    let message = {
-      user: msg.username,
-      content: msg.content,
-      id: uuidv4(),
-      type: msg.type,
+    let incomingNote = JSON.parse(event.data);
+    let outgoingNote = {
+      note: incomingNote.note,
     };
-    // reassign message types for sending to app
-    switch (message.type) {
-      case 'postMessage':
-        message.type = 'incomingMessage';
-        break;
-      case 'postNotification':
-        message.type = 'incomingNotification';
-        break;
-    }
-    // broadcast messages to all connected users
+
+    // broadcast note to all connected users
     wss.clients.forEach(function each(client) {
-      let messagetoSend = JSON.stringify(message);
-      client.send(messagetoSend);
+      let noteToSend = JSON.stringify(outgoingNote);
+      console.log('sending note');
+      client.send(noteToSend);
     });
   };
   ws.on('close', () => {
     console.log('Client disconnected');
-    // reassign user count when client disconnects
-    clientCountObject.count = wss.clients.size;
-    // loop through clients and send new client count data
-    wss.clients.forEach(function each(client) {
-      client.send(JSON.stringify(clientCountObject));
-    });
   });
 });
