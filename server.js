@@ -23,6 +23,9 @@ wss.on('connection', (ws) => {
   wss.clients.forEach(function each(client) {
     client.send(JSON.stringify(clientCountObject));
   });
+  ws.onmessage = function(event) {
+    console.log(event.data);
+  };
 
   ws.on('close', () => {
     console.log('Client disconnected');
