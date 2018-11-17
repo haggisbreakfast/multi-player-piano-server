@@ -25,6 +25,13 @@ wss.on('connection', (ws) => {
   });
   ws.onmessage = function(event) {
     console.log(event.data);
+
+    // broadcast received data to all connected users
+    wss.clients.forEach(function each(client) {
+      let keysData = JSON.stringify(event.data);
+      client.send(keysData);
+      console.log(keysData);
+    });
   };
 
   ws.on('close', () => {
