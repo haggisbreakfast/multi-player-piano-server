@@ -27,7 +27,7 @@ wss.on('connection', (ws) => {
     const parsedData = JSON.parse(event.data);
     const keysData = JSON.stringify({
       ...parsedData,
-      count: clientCountObject.count,
+      count: wss.clients.size,
     });
     // broadcast received data to all connected users
     wss.clients.forEach(function each(client) {
