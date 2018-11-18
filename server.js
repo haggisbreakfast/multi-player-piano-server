@@ -7,7 +7,9 @@ const PORT = 3001;
 const server = express()
   // Make the express server serve static assets (html, javascript, css) from the /public folder
   .use(express.static('public'))
-  .listen(PORT, '0.0.0.0', 'localhost', () => console.log(`Listening on ${PORT}`));
+  .listen(PORT, '0.0.0.0', 'localhost', () =>
+    console.log(`Listening on ${PORT}`),
+  );
 
 // Create the WebSockets server
 const wss = new SocketServer({ server });
@@ -24,13 +26,15 @@ wss.on('connection', (ws) => {
     client.send(JSON.stringify(clientCountObject));
   });
   ws.onmessage = function(event) {
-    console.log(event.data);
-
+    const parsedData = JSON.parse(event.data);
+    const keysData = JSON.stringify({
+      ...parsedData,
+      count: clientCountObject.count,
+    });
     // broadcast received data to all connected users
     wss.clients.forEach(function each(client) {
-      let keysData = JSON.stringify(event.data);
       client.send(keysData);
-      console.log(keysData);
+      console.log(JSON.stringify(parsedData));
     });
   };
 
