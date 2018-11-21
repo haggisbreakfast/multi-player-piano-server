@@ -11,7 +11,29 @@ const server = express()
 
 // Create the WebSockets server
 const wss = new SocketServer({ server });
-
+const recording = {
+  isRecording: false,
+  getNote() {},
+  toggleRecording() {
+    console.log('Toggle');
+    if (!this.isRecording) {
+      this.startTime = new Date();
+      this.notes = [];
+      this.getNote = function(note, time) {
+        setImmediate(() => {
+          this.notes.push({ note, offset: time - this.startTime });
+          console.log(this.notes);
+        });
+      };
+      this.isRecording = true;
+    } else {
+      console.log(this.notes);
+      this.notes = [];
+      this.getNote = function() {};
+      this.isRecording = false;
+    }
+  },
+};
 wss.on('connection', (ws) => {
   console.log('Client connected');
   // set up user count on connection
@@ -25,14 +47,22 @@ wss.on('connection', (ws) => {
   });
   ws.onmessage = function(event) {
     const parsedData = JSON.parse(event.data);
+    if (parsedData.type === 'record') {
+      recording.toggleRecording();
+      return;
+    }
     const keysData = JSON.stringify({
       ...parsedData,
       count: wss.clients.size,
     });
+    recording.getNote(keysData, new Date());
     // broadcast received data to all connected users
     wss.clients.forEach(function each(client) {
       client.send(keysData);
-      console.log(JSON.stringify(parsedData));
+
+      setImmediate(() => {
+        console.log(JSON.stringify(parsedData));
+      });
     });
   };
 
