@@ -20,14 +20,22 @@ const recording = {
       this.startTime = new Date();
       this.notes = [];
       this.getNote = function(note, time) {
-        setImmediate(() => {
-          this.notes.push({ note, offset: time - this.startTime });
-          console.log(this.notes);
-        });
+        // setImmediate(() => {
+        this.notes.push({ note, offset: time - this.startTime });
+        console.log(this.notes);
+        // });
       };
       this.isRecording = true;
     } else {
+      console.log('yer dun');
       console.log(this.notes);
+
+      wss.clients.forEach((client) => {
+        client.send(JSON.stringify({ type: 'recorded', notes: this.notes }));
+        // client.send('a string');
+      });
+      console.log('sent 2 all');
+
       this.notes = [];
       this.getNote = function() {};
       this.isRecording = false;
@@ -47,8 +55,9 @@ wss.on('connection', (ws) => {
   });
   ws.onmessage = function(event) {
     const parsedData = JSON.parse(event.data);
-    if (parsedData.type === 'record') {
+    if (parsedData.type === 'recording') {
       recording.toggleRecording();
+
       return;
     }
     const keysData = JSON.stringify({
@@ -58,7 +67,8 @@ wss.on('connection', (ws) => {
     recording.getNote(keysData, new Date());
     // broadcast received data to all connected users
     wss.clients.forEach(function each(client) {
-      client.send(keysData);
+      if (client !== ws) client.send(keysData);
+      // client.send(keysData);
 
       setImmediate(() => {
         console.log(JSON.stringify(parsedData));
