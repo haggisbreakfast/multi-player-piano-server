@@ -67,7 +67,8 @@ wss.on('connection', (ws) => {
     recording.getNote(keysData, new Date());
     // broadcast received data to all connected users
     wss.clients.forEach(function each(client) {
-      client.send(keysData);
+      if (client !== ws) client.send(keysData);
+      // client.send(keysData);
 
       setImmediate(() => {
         console.log(JSON.stringify(parsedData));
