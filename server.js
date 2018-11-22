@@ -20,13 +20,14 @@ const recording = {
       this.startTime = new Date();
       this.notes = [];
       this.getNote = function(note, time) {
-        setImmediate(() => {
-          this.notes.push({ note, offset: time - this.startTime });
-          console.log(this.notes);
-        });
+        // setImmediate(() => {
+        this.notes.push({ note, offset: time - this.startTime });
+        console.log(this.notes);
+        // });
       };
       this.isRecording = true;
     } else {
+      console.log('yer dun');
       console.log(this.notes);
       this.notes = [];
       this.getNote = function() {};
@@ -47,8 +48,9 @@ wss.on('connection', (ws) => {
   });
   ws.onmessage = function(event) {
     const parsedData = JSON.parse(event.data);
-    if (parsedData.type === 'record') {
+    if (parsedData.type === 'recording') {
       recording.toggleRecording();
+
       return;
     }
     const keysData = JSON.stringify({
