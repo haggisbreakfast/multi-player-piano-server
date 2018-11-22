@@ -29,6 +29,13 @@ const recording = {
     } else {
       console.log('yer dun');
       console.log(this.notes);
+
+      wss.clients.forEach((client) => {
+        client.send(JSON.stringify({ type: 'recorded', notes: this.notes }));
+        // client.send('a string');
+      });
+      console.log('sent 2 all');
+
       this.notes = [];
       this.getNote = function() {};
       this.isRecording = false;
