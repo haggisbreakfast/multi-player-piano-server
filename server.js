@@ -73,9 +73,9 @@ wss.on('connection', (ws) => {
         client.send(keysData);
       }
 
-      setImmediate(() => {
-        console.log(JSON.stringify(parsedData));
-      });
+      // setImmediate(() => {
+      //   console.log(JSON.stringify(parsedData));
+      // });
     });
   };
 
