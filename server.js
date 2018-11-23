@@ -11,37 +11,6 @@ const server = express()
 
 // Create the WebSockets server
 const wss = new SocketServer({ server });
-// const recording = {
-// isRecording: false,
-// getNote() {},
-// toggleRecording() {
-//   console.log('Toggle');
-//   if (!this.isRecording) {
-//     this.startTime = new Date();
-//     this.notes = [];
-//     this.getNote = function(note, time) {
-//       // setImmediate(() => {
-//       this.notes.push({ note, offset: time - this.startTime });
-//       console.log(this.notes);
-// });
-//   };
-//   this.isRecording = true;
-// } else {
-//   console.log('yer dun');
-//   console.log(this.notes);
-
-//     wss.clients.forEach((client) => {
-//       client.send(JSON.stringify({ type: 'recorded', notes: this.notes }));
-//       // client.send('a string');
-//     });
-//     console.log('sent 2 all');
-
-//     this.notes = [];
-//     this.getNote = function() {};
-//     this.isRecording = false;
-//   }
-// },
-// };
 wss.on('connection', (ws) => {
   console.log('Client connected');
   // set up user count on connection
@@ -55,6 +24,7 @@ wss.on('connection', (ws) => {
   });
   ws.onmessage = function(event) {
     const parsedData = JSON.parse(event.data);
+
     // if (parsedData.type === 'recording') {
     //   recording.toggleRecording();
 
@@ -64,18 +34,19 @@ wss.on('connection', (ws) => {
       ...parsedData,
       count: wss.clients.size,
     });
+
     // recording.getNote(keysData, new Date());
     // broadcast received data to all connected users
     wss.clients.forEach(function each(client) {
+      // if a client is NOT the websocket client then send to them
       if (client !== ws && parsedData.type === 'note') {
+        //  && parsedData.type === 'note') {
         client.send(keysData);
-      } else {
+        console.log('its me');
+      }
+      if (parsedData.type === 'drums') {
         client.send(keysData);
       }
-
-      // setImmediate(() => {
-      //   console.log(JSON.stringify(parsedData));
-      // });
     });
   };
 
