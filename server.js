@@ -24,6 +24,7 @@ wss.on('connection', (ws) => {
   });
   ws.onmessage = function(event) {
     const parsedData = JSON.parse(event.data);
+    console.log(parsedData)
 
     // if (parsedData.type === 'recording') {
     //   recording.toggleRecording();
@@ -38,6 +39,7 @@ wss.on('connection', (ws) => {
     // recording.getNote(keysData, new Date());
     // broadcast received data to all connected users
     wss.clients.forEach(function each(client) {
+
       // if a client is NOT the websocket client then send to them
       if (client !== ws && parsedData.type === 'note') {
         //  && parsedData.type === 'note') {
